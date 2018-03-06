@@ -40,7 +40,7 @@ EXTERN(main)
 
 /* Initial stack pointer value. */
 EXTERN(__msp_init)
-PROVIDE(__msp_init = ORIGIN(ram) + LENGTH(ram));
+PROVIDE(__msp_init = ORIGIN(ccmram) + LENGTH(ccmram));
 
 /* Reset vector and chip reset entry point */
 EXTERN(__start__)
@@ -151,7 +151,7 @@ SECTIONS
          * I'm shoving these here naively; there's probably a cleaner way
          * to go about this. [mbolivar]
          */
-        _lm_heap_start = DEFINED(_lm_heap_start) ? _lm_heap_start : _end;
+        _lm_heap_start = DEFINED(_lm_heap_start) ? _lm_heap_start : __ccm_end__;
         _lm_heap_end   = DEFINED(_lm_heap_end) ? _lm_heap_end : __msp_init;
       } > REGION_RODATA
 
@@ -171,25 +171,25 @@ SECTIONS
       } > REGION_DATA AT> REGION_RODATA
 
       
-  /* _siccmram = LOADADDR(.ccmram);
-  */
+    /* _siccmram = LOADADDR(.ccmram);
+    */
 
-  /* CCM-RAM section 
-  * 
-  * IMPORTANT NOTE! 
-  * If initialized variables will be placed in this section, 
-  * the startup code needs to be modified to copy the init-values.  
-  */
-  .ccmram :
-  {
-    . = ALIGN(4);
-    __ccm_start__ = .;       /* create a global symbol at ccmram start */
-    *(.ccmram)
-    *(.ccmram*)
+    /* CCM-RAM section 
+    * 
+    * IMPORTANT NOTE! 
+    * If initialized variables will be placed in this section, 
+    * the startup code needs to be modified to copy the init-values.  
+    */
+    .ccmram :
+      {
+        . = ALIGN(4);
+        __ccm_start__ = .;       /* create a global symbol at ccmram start */
+        *(.ccmram)
+        *(.ccmram*)
     
-    . = ALIGN(4);
-    __ccm_end__ = .;       /* create a global symbol at ccmram end */
-  } >REGION_CCMRAM AT> REGION_RODATA
+        . = ALIGN(4);
+        __ccm_end__ = .;       /* create a global symbol at ccmram end */
+      } >REGION_CCMRAM AT> REGION_RODATA
       
     /*
      * .bss
